@@ -7,7 +7,7 @@ import 'vue-sonner/style.css'
 <template>
   <header>
 
-    <div class="wrapper">
+    <div class="wrapper bg-amber-400">
       <nav>
         <RouterLink to="/">Home</RouterLink>
       </nav>

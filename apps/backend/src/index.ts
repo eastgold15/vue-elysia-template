@@ -28,7 +28,7 @@ process.on("unhandledRejection", (error) => {
   startupHealthCheck();
 
   if (import.meta.env.NODE_ENV === "production") {
-    console.log("当前环境：生产环境: https://wx.cykycyky.top");
+    console.log("当前环境：生产环境: https://wx.xxx.top");
     console.log("版本号:", packageJson.version);
   } else {
     console.log("当前环境：开发环境");

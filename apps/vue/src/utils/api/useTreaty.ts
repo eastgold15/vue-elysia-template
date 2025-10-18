@@ -1,4 +1,4 @@
-import { EndApp } from "@elysiajs/index";
+import { EndApp } from "@backend/index";
 import { treaty } from "@elysiajs/eden";
 // 创建Eden Treaty客户端
 export const client = treaty<EndApp>(

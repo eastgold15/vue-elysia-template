@@ -50,6 +50,17 @@ export const app = new Elysia()
     }),
   )
   .get("/favicon.ico", () => "ssds")
+  .get("/health", () => ({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development"
+  }), {
+    detail: {
+      summary: "健康检查",
+      description: "检查API服务状态"
+    }
+  })
   .use(errorHandler)
   .use(logPlugin)
   .use(api)

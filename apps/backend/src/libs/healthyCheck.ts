@@ -12,8 +12,8 @@ export async function performHealthCheck() {
     //打印数据库连接信息
     console.log("数据库连接信息", process.env.DATABASE_URL);
 
-		// 使用 drizzle 的 query 方式代替 execute(sql``)
-		const result = await db.execute(sql`SELECT 1 + 1 AS solution`);
+    // 使用 drizzle 的 query 方式代替 execute(sql``)
+    const result = await db.execute(sql`SELECT 1 + 1 AS solution`);
 
 
     // 安全检查

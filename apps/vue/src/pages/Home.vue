@@ -28,6 +28,7 @@
 
       <div class="api-test">
         <h2>API 测试</h2>
+        <input type="text" v-model="inputValue"></input>
         <button @click="testApi" :disabled="loading">
           {{ loading ? '请求中...' : '测试后端 API' }}
         </button>
@@ -48,25 +49,26 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-
+import { useApi } from "../utils/api/handleApi";
+const inputValue = ref("1");
 const loading = ref(false);
 const result = ref<string>("");
 const error = ref<string>("");
+const api = useApi()
 
 const testApi = async () => {
-	loading.value = true;
-	result.value = "";
-	error.value = "";
+  loading.value = true;
+  result.value = "";
+  error.value = "";
 
-	try {
-		const response = await fetch("/api");
-		const data = await response.text();
-		result.value = data;
-	} catch (err) {
-		error.value = err instanceof Error ? err.message : "未知错误";
-	} finally {
-		loading.value = false;
-	}
+  try {
+    const res = await api.partners.list(inputValue.value)
+    result.value = res?.data || "请求成功";
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : "未知错误";
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
@@ -161,7 +163,8 @@ button:disabled {
   cursor: not-allowed;
 }
 
-.result, .error {
+.result,
+.error {
   margin-top: 1rem;
   padding: 1rem;
   border-radius: 0.5rem;

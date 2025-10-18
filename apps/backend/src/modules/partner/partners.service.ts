@@ -13,6 +13,5 @@ export abstract class PartnersService {
    */
   static async getPartnerById(id: number) {
     return '11'
-
   }
 }

@@ -12,8 +12,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@vue": resolve(__dirname, "./src"),
-      "@elysia": resolve(__dirname, "../backend/src"),
+      "@": resolve(__dirname, "./src"),
+      "@backend": resolve(__dirname, "../backend/src"),
     },
   }
 })

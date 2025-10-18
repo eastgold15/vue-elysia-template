@@ -1,5 +1,4 @@
 
-import { PartnersModel } from "@elysiajs/libs/schema";
 import { useApiWithToast } from "./useApiWithToast";
 
 /**
@@ -11,12 +10,11 @@ export const useApi = () => {
   return {
     // 合作伙伴
     partners: {
-      // list: (params: PartnersModel.ListQueryInput) =>
-      // 	api.callPaginated(() =>
-      // 		api.client.api.partners.list.get({ query: params }),
-      // 	),
 
-
+      list: (query: string) =>
+        api.callPaginated(() =>
+          api.client.api.partners.ping.get({ query: { str: query } })
+        ),
     },
     // 原始toast方法（如果需要自定义提示）
     toast: {

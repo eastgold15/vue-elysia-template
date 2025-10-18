@@ -1,0 +1,295 @@
+# 启动之前，把环境变量放到服务器的位置
+name: 🚀 Monorepo 部署到服务器 
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  BUN_VERSION: 'latest'
+  FRONTEND_REMOTE_PATH: '/opt/1panel/www/sites/gina/index'
+  BACKEND_REMOTE_PATH: '/2'
+  SFTP_PORT: '22'
+  # 前端环境变量
+  VITE_API_URL: "http://11.11.11.11:9012"
+  VITE_HUAWEI_DOMAIN: "http://img.xxxx.top"
+
+jobs:
+  check-deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+    steps:
+      - name: Check if commit message starts with 'deploy'
+        id: check
+        run: |
+          echo "Commit message: ${{ github.event.head_commit.message }}"
+          if [[ "${{ github.event.head_commit.message }}" == deploy* ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-deploy:
+    needs: check-deploy
+    if: needs.check-deploy.outputs.should-deploy == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v5
+
+      - name: 📦 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: 📥 安装依赖 (Monorepo)
+        run: bun install
+      
+      - name: 🔧 创建前端环境变量文件
+        run: |
+          echo "创建前端环境变量文件..."
+          cd apps/frontend
+          cat > .env.production << EOF
+          VITE_API_URL=${{ env.VITE_API_URL }}
+          VITE_HUAWEI_DOMAIN=${{ env.VITE_HUAWEI_DOMAIN }}
+          EOF
+          echo "✅ 前端环境变量文件创建完成："
+          cat .env.production
+
+
+      - name: 🏗️ 构建所有项目 (Turbo)
+        run: bun run build
+
+      - name: 🔍 检查项目结构
+        run: |
+          echo "=== 当前工作目录 ==="
+          pwd
+          echo "=== 根目录内容 ==="
+          ls -la
+          echo "=== 寻找 apps 目录 ==="
+          find . -name "apps" -type d 2>/dev/null || echo "未找到 apps 目录"
+          echo "=== 寻找 frontend 相关目录 ==="
+          find . -name "frontend" -type d 2>/dev/null || echo "未找到 frontend 目录"
+          echo "=== 寻找 backend 相关目录 ==="
+          find . -name "backend" -type d 2>/dev/null || echo "未找到 backend 目录"
+          echo "=== 寻找 dist 目录 ==="
+          find . -name "dist" -type d 2>/dev/null || echo "未找到 dist 目录"
+
+      - name: 📦 准备前端部署文件
+        run: |
+          echo "准备前端构建产物..."
+          if [ -d "apps/frontend/dist" ]; then
+            echo "✅ 前端构建产物存在"
+            ls -la apps/frontend/dist/
+          else
+            echo "❌ 前端构建产物不存在"
+            exit 1
+          fi
+
+      - name: 📦 准备后端部署文件
+        run: |
+          echo "准备后端部署文件..."
+          
+          # 检查后端构建结果
+          if [ ! -d "apps/backend/dist" ]; then
+            echo "❌ 后端构建产物不存在"
+            exit 1
+          fi
+          
+          # 创建部署目录
+          mkdir -p backend-deploy
+          
+          # 复制核心文件（不包含环境变量文件）
+          echo "复制 package.json..."
+          cp apps/backend/package.json backend-deploy/
+          
+          echo "复制构建产物..."
+          cp -r apps/backend/dist backend-deploy/
+          
+          echo "复制管理脚本..."
+          cp apps/backend/start.sh backend-deploy/ 2>/dev/null || echo "start.sh not found, skipping"
+          cp apps/backend/stop.sh backend-deploy/ 2>/dev/null || echo "stop.sh not found, skipping"
+          cp apps/backend/status.sh backend-deploy/ 2>/dev/null || echo "status.sh not found, skipping"
+          
+          echo "⚠️ 注意：环境变量文件(.env*)将由用户手动管理，不会被部署流程覆盖"
+          
+          echo "✅ 部署文件准备完成："
+          ls -la backend-deploy/
+
+      - name: 📏 创建远程目录
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ env.SFTP_PORT || 22 }}
+          script: |
+            echo "创建远程目录..."
+            mkdir -p ${{ env.FRONTEND_REMOTE_PATH }}
+            mkdir -p ${{ env.BACKEND_REMOTE_PATH }}
+            echo "✅ 目录创建完成"
+            ls -la ${{ env.FRONTEND_REMOTE_PATH }}
+            ls -la ${{ env.BACKEND_REMOTE_PATH }}
+
+      - name: 🌐 部署前端 (SFTP)
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          username: ${{ secrets.SFTP_USER }}
+          server: ${{ secrets.SFTP_HOST }}
+          port: ${{ env.SFTP_PORT || 22 }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          local_path: './apps/frontend/dist/*'
+          remote_path: ${{ env.FRONTEND_REMOTE_PATH }}
+          sftp_only: false
+          sftpArgs: '-o ConnectTimeout=10'
+          delete_remote_files: true
+
+      - name: 🛑 停止后端服务
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ env.SFTP_PORT || 22 }}
+          script: |
+            cd ${{ env.BACKEND_REMOTE_PATH }}
+            
+            echo "=== 🛑 部署前停止服务 ==="
+            
+            # 设置 shell 脚本权限
+            chmod +x ./*.sh 2>/dev/null || echo "No shell scripts found"
+            
+            # 停止现有服务
+            if [ -f "./stop.sh" ]; then
+              echo "使用 stop.sh 停止服务"
+              ./stop.sh || echo "服务未运行或停止失败"
+            else
+              echo "使用备用停止方法"
+              pkill -f "bun.*start" 2>/dev/null || echo "没有找到运行中的服务"
+              rm -f app.pid
+            fi
+            
+            # 等待服务完全停止
+            sleep 3
+            
+            echo "=== ✅ 服务停止完成 ==="
+
+      - name: 🚀 部署后端 (SFTP) - 保护环境变量文件
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          username: ${{ secrets.SFTP_USER }}
+          server: ${{ secrets.SFTP_HOST }}
+          port: ${{ env.SFTP_PORT || 22 }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          local_path: './backend-deploy/*'
+          remote_path: ${{ env.BACKEND_REMOTE_PATH }}
+          sftp_only: false
+          sftpArgs: '-o ConnectTimeout=10'
+          delete_remote_files: false
+
+      - name: 🎆 启动后端服务
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ env.SFTP_PORT || 22 }}
+          script: |
+            cd ${{ env.BACKEND_REMOTE_PATH }}
+            
+            echo "=== 🎆 启动后端服务 ==="
+            
+            # 检查环境变量文件
+            echo "检查环境变量文件..."
+            if [ -f ".env" ]; then
+              echo "✅ .env 文件存在"
+            else
+              echo "⚠️ .env 文件不存在，请手动上传"
+            fi
+            
+            if [ -f ".env.production" ]; then
+              echo "✅ .env.production 文件存在"
+            else
+              echo "⚠️ .env.production 文件不存在，请手动上传"
+            fi
+            
+            # 设置 shell 脚本权限
+            chmod +x ./*.sh 2>/dev/null || echo "No shell scripts found"
+            
+            # 启动服务
+            if [ -f "./start.sh" ]; then
+              echo "使用 start.sh 启动服务"
+              ./start.sh
+            else
+              echo "使用备用启动方法"
+              export PATH="/root/.bun/bin:$PATH"
+              export NODE_ENV=production
+              mkdir -p logs
+              nohup bun run start > logs/app.log 2>&1 &
+              echo $! > app.pid
+              echo "服务已启动，PID: $(cat app.pid)"
+            fi
+            
+            echo "=== ✅ 服务启动完成 ==="
+
+      - name: 🔍 部署后验证
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ env.SFTP_PORT || 22 }}
+          script: |
+            cd ${{ env.BACKEND_REMOTE_PATH }}
+            
+            echo "=== 🔍 最终验证 ==="
+            
+            # 等待服务完全启动
+            sleep 10
+            
+            # 使用 status.sh 进行最终验证
+            if [ -f "./status.sh" ]; then
+              echo "使用 status.sh 进行最终验证..."
+              ./status.sh
+              
+              # 检查服务是否真的在运行
+              if [ -f "app.pid" ]; then
+                PID=$(cat app.pid)
+                if ps -p $PID > /dev/null 2>&1; then
+                  echo "🎉 部署验证成功：服务正在运行 (PID: $PID)"
+                else
+                  echo "❌ 部署验证失败：服务未运行"
+                  exit 1
+                fi
+              else
+                echo "❌ 部署验证失败：未找到 PID 文件"
+                exit 1
+              fi
+            else
+              echo "⚠️ 未找到 status.sh，跳过详细验证"
+            fi
+            
+            echo "=== 🎉 验证完成 ==="
+
+  notify-deployment:
+    needs: [check-deploy, build-and-deploy]
+    if: always() && needs.check-deploy.outputs.should-deploy == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📊 部署状态通知
+        run: |
+          if [[ "${{ needs.build-and-deploy.result }}" == "success" ]]; then
+            echo "🎉 Monorepo 部署成功！"
+            echo "✅ 前端已部署到：${{ env.FRONTEND_REMOTE_PATH }}"
+            echo "✅ 后端已部署到：${{ env.BACKEND_REMOTE_PATH }}"
+            echo "🚀 使用 Turbo + Bun 一次构建，分别部署"
+          else
+            echo "❌ Monorepo 部署失败！"
+            echo "状态: ${{ needs.build-and-deploy.result }}"
+            exit 1
+          fi

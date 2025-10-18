@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* pass options to the plugin */
+@plugin '@egoist/tailwindcss-icons' {
+	scale: 1.5;
+}

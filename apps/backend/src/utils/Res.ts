@@ -2,8 +2,6 @@
 
 import { t } from "elysia";
 
-
-
 /**
  * 前端用的响应类型定义
  * 错误也使用这个
@@ -66,12 +64,6 @@ export type PageRes<T> = {
   message: string;
   data: PageData<T>;
 };
-
-
-
-
-
-
 // ==================== 响应函数 ====================
 
 /**

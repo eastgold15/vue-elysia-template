@@ -1,6 +1,3 @@
-// src/errors/guards.ts
-import { CustomError } from "./base";
-
 /**
  * 判断是否为 PostgreSQL/Drizzle 风格的数据库错误
  */

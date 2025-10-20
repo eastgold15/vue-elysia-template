@@ -13,10 +13,8 @@ import {
 	createUpdateSchema,
 } from "drizzle-typebox";
 import { t } from "elysia";
-import { createdAt, id, updatedAt } from "../../libs/schemaHelper";
 import { PageQuerySchema } from "../../libs/common-schemas";
-
-
+import { createdAt, id, updatedAt } from "../../libs/schemaHelper";
 
 /**
  * 1. Drizzle 表定义
@@ -86,7 +84,12 @@ export namespace UsersModel {
 
 	// 业务 DTO Schemas
 	export const Create = t.Omit(Insert, ["id", "createdAt", "updatedAt"]);
-	export const Patch = t.Omit(Update, ["id", "createdAt", "updatedAt", "password"]);
+	export const Patch = t.Omit(Update, [
+		"id",
+		"createdAt",
+		"updatedAt",
+		"password",
+	]);
 
 	// 查询 Schemas
 	export const ListQuery = t.Composite([

@@ -7,9 +7,9 @@ import { t } from "elysia";
  * 错误也使用这个
  */
 export type CommonRes<T> = {
-  code: number;
-  message: string;
-  data: T;
+	code: number;
+	message: string;
+	data: T;
 };
 
 /**
@@ -21,23 +21,23 @@ export type CommonRes<T> = {
  * @returns
  */
 export function commonRes<T>(
-  data: T,
-  code = 200,
-  message = "操作成功",
+	data: T,
+	code = 200,
+	message = "操作成功",
 ): CommonRes<T> {
-  return {
-    code,
-    message,
-    data,
-  };
+	return {
+		code,
+		message,
+		data,
+	};
 }
 
 /**
  * 分页查询参数的 Zod 类型定义
  */
 export const PaginationQuery = t.Object({
-  page: t.Optional(t.Number()),
-  limit: t.Optional(t.Number()),
+	page: t.Optional(t.Number()),
+	limit: t.Optional(t.Number()),
 });
 
 export type PaginationQueryType = typeof PaginationQuery.static;
@@ -45,24 +45,24 @@ export type PaginationQueryType = typeof PaginationQuery.static;
  * 分页元数据 Zod 类型定义
  */
 export const PageMeta = t.Object({
-  total: t.Number(),
-  page: t.Number(),
-  limit: t.Number(),
-  totalPages: t.Number(),
+	total: t.Number(),
+	page: t.Number(),
+	limit: t.Number(),
+	totalPages: t.Number(),
 });
 export type PageMeta = typeof PageMeta.static;
 export interface PageData<T> {
-  items: T[]; // 当前页数据
-  meta: PageMeta;
+	items: T[]; // 当前页数据
+	meta: PageMeta;
 }
 
 /**
  * 前端用的分页响应类型定义
  */
 export type PageRes<T> = {
-  code: number;
-  message: string;
-  data: PageData<T>;
+	code: number;
+	message: string;
+	data: PageData<T>;
 };
 // ==================== 响应函数 ====================
 
@@ -77,24 +77,23 @@ export type PageRes<T> = {
  * @returns 符合项目规范的分页响应
  */
 export function pageRes<T>(
-  data: T[],
-  total: number,
-  page = 1,
-  limit = 10,
-  message = "获取成功",
+	data: T[],
+	total: number,
+	page = 1,
+	limit = 10,
+	message = "获取成功",
 ) {
-  return commonRes(
-    {
-      items: data,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    },
-    200,
-    message,
-  );
+	return commonRes(
+		{
+			items: data,
+			meta: {
+				total,
+				page,
+				limit,
+				totalPages: Math.ceil(total / limit),
+			},
+		},
+		200,
+		message,
+	);
 }
-

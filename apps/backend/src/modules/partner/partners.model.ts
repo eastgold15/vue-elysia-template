@@ -1,15 +1,17 @@
 import { relations } from "drizzle-orm";
 import { boolean, integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
-import {
-  createInsertSchema,
-  createSelectSchema,
-  createUpdateSchema,
-} from "drizzle-zod";
-import { t } from "elysia";
+// import {
+//   createInsertSchema,
+//   createSelectSchema,
+//   createUpdateSchema,
+// } from "drizzle-zod";
 
 import { createdAt, id, updatedAt } from "../../libs/schemaHelper";
-import { z } from "zod";
-
+import { createInsertSchema } from "drizzle-typebox";
+import { createUpdateSchema } from "drizzle-typebox";
+import { createSelectSchema } from "drizzle-typebox";
+import { t } from "elysia";
+import { PageQuerySchema } from "@backend/libs/common-schemas";
 
 /**
  * 1. Drizzle 表定义
@@ -30,30 +32,6 @@ export const partnersTable = pgTable("partners", {
 
 
 
-export namespace PartnersModel {
-  // === 基础 TypeBox Schema（基于 Drizzle 表生成） ===
-  export const Insert = createInsertSchema(partnersTable);
-  export const Update = createUpdateSchema(partnersTable);
-  export const Select = createSelectSchema(partnersTable);
-
-  // === 业务 DTO Schemas ===
-  export const Create = Insert.omit({ id: true, createdAt: true, updatedAt: true });
-  export const Patch = Update.omit({ id: true, createdAt: true, updatedAt: true });
-  export const Query = Select.omit({ id: true, createdAt: true, updatedAt: true });
-
-}
-
-// /**
-//  * 2. 合作伙伴关系定义
-//  */
-// export const partnersRelations = relations(partnersTable, ({ many }) => ({
-//   // 未来可扩展其他关联
-// }));
-
-// /**
-//  * 3. 合作伙伴模型 Namespace
-//  * 使用 namespace 组织所有相关的 TypeBox schemas 和类型定义
-//  */
 // export namespace PartnersModel {
 //   // === 基础 TypeBox Schema（基于 Drizzle 表生成） ===
 //   export const Insert = createInsertSchema(partnersTable);
@@ -61,32 +39,56 @@ export namespace PartnersModel {
 //   export const Select = createSelectSchema(partnersTable);
 
 //   // === 业务 DTO Schemas ===
-//   export const Create = t.Omit(Insert, ["id", "createdAt", "updatedAt"]);
-//   export const Patch = t.Omit(Update, ["id", "createdAt", "updatedAt"]);
+//   export const Create = Insert.omit({ id: true, createdAt: true, updatedAt: true });
+//   export const Patch = Update.omit({ id: true, createdAt: true, updatedAt: true });
+//   export const Query = Select.omit({ id: true, createdAt: true, updatedAt: true });
 
-//   // === 查询 Schemas ===
-//   export const ListQuery = t.Composite([
-//     PageQuerySchema,
-//     t.Object({
-//       isActive: t.Boolean({ optional: true }),
-//       name: t.String({ optional: true }),
-//     }),
-//   ]);
-
-//   // === 操作 Schemas ===
-//   export const StatusUpdate = t.Object({
-//     isActive: t.Boolean({ optional: true }),
-//   });
-
-//   // === 前端展示类型（VO - View Object） ===
-//   export const ViewObject = t.Object({
-//     id: t.Integer(),
-//     name: t.String(),
-//     description: t.String(),
-//     url: t.String(),
-//     sortOrder: t.Integer(),
-//     isActive: t.Boolean(),
-//     createdAt: t.Date(),
-//     updatedAt: t.Date(),
-//   });
 // }
+
+/**
+ * 2. 合作伙伴关系定义
+ */
+export const partnersRelations = relations(partnersTable, ({ many }) => ({
+  // 未来可扩展其他关联
+}));
+
+/**
+ * 3. 合作伙伴模型 Namespace
+ * 使用 namespace 组织所有相关的 TypeBox schemas 和类型定义
+ */
+export namespace PartnersModel {
+  // === 基础 TypeBox Schema（基于 Drizzle 表生成） ===
+  export const Insert = createInsertSchema(partnersTable);
+  export const Update = createUpdateSchema(partnersTable);
+  export const Select = createSelectSchema(partnersTable);
+
+  // === 业务 DTO Schemas ===
+  export const Create = t.Omit(Insert, ["id", "createdAt", "updatedAt"]);
+  export const Patch = t.Omit(Update, ["id", "createdAt", "updatedAt"]);
+
+  // === 查询 Schemas ===
+  export const ListQuery = t.Composite([
+    PageQuerySchema,
+    t.Object({
+      isActive: t.Boolean({ optional: true }),
+      name: t.String({ optional: true }),
+    }),
+  ]);
+
+  // === 操作 Schemas ===
+  export const StatusUpdate = t.Object({
+    isActive: t.Boolean({ optional: true }),
+  });
+
+  // === 前端展示类型（VO - View Object） ===
+  export const ViewObject = t.Object({
+    id: t.Integer(),
+    name: t.String(),
+    description: t.String(),
+    url: t.String(),
+    sortOrder: t.Integer(),
+    isActive: t.Boolean(),
+    createdAt: t.Date(),
+    updatedAt: t.Date(),
+  });
+}

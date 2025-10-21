@@ -25,6 +25,7 @@
 		"@gramio/init-data": "^0.0.5",
 		"drizzle-orm": "^0.44.5",
 		"drizzle-typebox": "^0.3.3",
+		"drizzle-zod": "^0.8.3",
 		"elysia": "catalog:",
 		"env-var": "^7.5.0",
 		"pg": "^8.16.3",

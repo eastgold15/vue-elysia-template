@@ -1,15 +1,27 @@
 import { Elysia, t } from "elysia";
 
 import { commonRes } from "../../utils/Res";
+import { PartnersModel, partnersTable } from "./partners.model";
+import { dbPlugin } from "@backend/plugins/db";
 /**
  * 合作伙伴控制器
  * 处理合作伙伴相关的HTTP请求
  */
 export const partnersController = new Elysia({
-	prefix: "/partners",
-	tags: ["Partners"],
+  prefix: "/partners",
+  tags: ["Partners"],
 })
-	// 简单的ping接口
+  .use(dbPlugin)
+  .post("/", async ({ db, body }) => {
+    const res = db.insert(partnersTable).values(body)
+    return commonRes(res);
+  }, {
+    body: PartnersModel.Create,
+    detail: {
+      summary: "创建合作伙伴",
+      description: "创建合作伙伴",
+    },
+  })	// 简单的ping接口
 	.get(
 		"/ping",
 		({ query: { str } }) => {
@@ -25,3 +37,4 @@ export const partnersController = new Elysia({
 			},
 		},
 	);
+

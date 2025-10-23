@@ -3,11 +3,11 @@ import type { Config } from "drizzle-kit";
 import { config } from "./src/configs/config";
 
 export default {
-  schema: "./src/libs/schema.ts",
-  out: "./drizzle",
-  dialect: "postgresql",
-  casing: "snake_case",
-  dbCredentials: {
-    url: config.DATABASE_URL,
-  },
+	schema: "./src/libs/schema.ts",
+	out: "./drizzle",
+	dialect: "postgresql",
+	casing: "snake_case",
+	dbCredentials: {
+		url: config.DATABASE_URL,  
+	},
 } satisfies Config;

@@ -58,18 +58,18 @@ const error = ref<string>("");
 const api = useApi();
 
 const testApi = async () => {
-  loading.value = true;
-  result.value = "";
-  error.value = "";
+	loading.value = true;
+	result.value = "";
+	error.value = "";
 
-  try {
-    const res = await api.partners.list(inputValue.value);
-    result.value = res?.data || "请求成功";
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "未知错误";
-  } finally {
-    loading.value = false;
-  }
+	try {
+		const res = await api.partners.list(inputValue.value);
+		result.value = res?.data || "请求成功";
+	} catch (err) {
+		error.value = err instanceof Error ? err.message : "未知错误";
+	} finally {
+		loading.value = false;
+	}
 };
 </script>
 

@@ -3,12 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@backend/*": [
-        "../backend/src/*"
-      ]
+      "@/*": ["./src/*"],
+      "@backend/*": ["../backend/src/*"]
     }
   },
   "include": [
@@ -16,5 +12,5 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "../backend/src/**/*"
-  ],
+  ]
 }

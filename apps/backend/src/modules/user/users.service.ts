@@ -1,5 +1,5 @@
 export abstract class UsersService {
-	static async getById(_id: number) {
-		return "xxx";
-	}
+  static getById(_id: number) {
+    return "xxx";
+  }
 }

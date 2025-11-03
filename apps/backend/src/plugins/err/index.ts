@@ -5,13 +5,13 @@ export { handleDatabaseError, mapDatabaseError } from "./database-error-mapper";
 export { isDatabaseError } from "./guards";
 // 导出所有具体错误类（用于 Elysia.error()）
 export {
-	AuthenticationError,
-	AuthorizationError,
-	BusinessError,
-	DatabaseError,
-	DuplicateError,
-	InternalServerError,
-	NotFoundError,
-	ServiceUnavailableError,
-	ValidationError,
+  AuthenticationError,
+  AuthorizationError,
+  BusinessError,
+  DatabaseError,
+  DuplicateError,
+  InternalServerError,
+  NotFoundError,
+  ServiceUnavailableError,
+  ValidationError,
 } from "./http-error";

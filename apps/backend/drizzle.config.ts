@@ -1,13 +1,13 @@
 import type { Config } from "drizzle-kit";
 
-import { config } from "./src/configs/config";
+import { envConfig } from "./src/configs/config";
 
 export default {
-	schema: "./src/libs/schema.ts",
-	out: "./drizzle",
-	dialect: "postgresql",
-	casing: "snake_case",
-	dbCredentials: {
-		url: config.DATABASE_URL,  
-	},
+  schema: "./src/**/*.sql.ts",
+  out: "./drizzle",
+  dialect: "postgresql",
+  casing: "snake_case",
+  dbCredentials: {
+    url: envConfig.DATABASE_URL,
+  },
 } satisfies Config;

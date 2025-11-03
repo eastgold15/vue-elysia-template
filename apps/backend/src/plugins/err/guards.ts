@@ -2,14 +2,14 @@
  * 判断是否为 PostgreSQL/Drizzle 风格的数据库错误
  */
 export function isDatabaseError(
-	error: unknown,
+  error: unknown
 ): error is { code: string; detail?: string } {
-	return (
-		error != null &&
-		typeof error === "object" &&
-		"code" in error &&
-		typeof (error as any).code === "string"
-	);
+  return (
+    error != null &&
+    typeof error === "object" &&
+    "code" in error &&
+    typeof (error as any).code === "string"
+  );
 }
 
 /**

@@ -17,12 +17,13 @@ export default defineConfig({
     Components({
       resolvers: [],
       dts: true, // 生成组件类型声明文件
-      dirs: ["src/components"], // 自动导入的组件目录
+      dirs: ["src/components", "scr/volt"], // 自动导入的组件目录
       extensions: ["vue"], // 组件文件扩展名
       deep: true, // 深度搜索子目录
       include: [/\.vue$/, /\.vue\?vue/], // 包含的文件类型
     }),
   ],
+
   server: {
     port: 9011,
   },

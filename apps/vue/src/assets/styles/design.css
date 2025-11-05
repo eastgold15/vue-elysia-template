@@ -1,0 +1,110 @@
+/** biome-ignore-all lint/suspicious/noUnknownAtRules: <tailwindcss> */
+/** biome-ignore-all lint/suspicious/noUnknownAtRules: <tailwindcss> */
+@import "./base.css";
+@import "tailwindcss";
+
+/* ========== 1. 亮色主题 ========== */
+@theme {
+  /* ========== 3. 语义化映射（引用色阶变量） ========== */
+  /* 品牌色 */
+  --color-primary: var(--primary-500);
+  --color-secondary: oklch(0.45 0.12 240);
+  /* 深蓝（暂不纳入色阶，保持简洁）*/
+  --color-tertiary: var(--primary-200);
+  /* 浅琥珀 */
+  --color-quaternary: oklch(0.92 0.04 240);
+  /* 极浅蓝（可后续扩展为 --blue-50）*/
+
+  /* 功能色（可后续也做成色阶，但先保持 OKLCH）*/
+  --color-success: oklch(0.72 0.16 150);
+  --color-warning: oklch(0.82 0.18 90);
+  --color-danger: oklch(0.68 0.22 20);
+  --color-info: oklch(0.65 0.15 240);
+
+  /* 文本色（使用 surface 色阶更统一）*/
+  --color-neutral: var(--surface-950);
+  /* ≈ oklch(0.12...) */
+  --color-neutral-muted: var(--surface-700);
+  /* ≈ oklch(0.44...) */
+  --color-neutral-subtle: var(--surface-500);
+  /* ≈ oklch(0.66...) */
+  --color-inverse: var(--surface-0);
+  /* 白色 */
+
+  /* 背景色 */
+  --color-background: var(--surface-0);
+  --color-surface: var(--surface-50);
+  --color-surface-hover: var(--surface-100);
+  --color-surface-active: var(--surface-200);
+  --color-overlay: oklch(0 0 0 / 0.65);
+  --color-backdrop: oklch(0 0 0 / 0.45);
+
+  /* 边框色 */
+  --color-border: var(--surface-200);
+  /* 浅灰边框 */
+  --color-border-muted: var(--surface-300);
+  /* 更浅 */
+  --color-border-focus: var(--color-primary);
+
+  /* 交互状态（基于 --color-primary 引用）*/
+  --color-primary-hover: color-mix(
+    in oklch,
+    var(--color-primary) 85%,
+    white 15%
+  );
+  --color-primary-active: color-mix(
+    in oklch,
+    var(--color-primary) 88%,
+    black 12%
+  );
+
+  --color-secondary-hover: color-mix(
+    in oklch,
+    var(--color-secondary) 85%,
+    white 15%
+  );
+  --color-secondary-active: color-mix(
+    in oklch,
+    var(--color-secondary) 90%,
+    black 10%
+  );
+
+  --color-tertiary-hover: color-mix(
+    in oklch,
+    var(--color-tertiary) 80%,
+    white 20%
+  );
+  --color-tertiary-active: color-mix(
+    in oklch,
+    var(--color-tertiary) 92%,
+    black 8%
+  );
+
+  /* 其他 UI 变量 */
+  --p-content-border-radius: 6px;
+}
+
+/* ========== 2. 暗色模式覆盖 ========== */
+@layer theme {
+  * {
+    /* Dark mode overrides */
+    @variant dark {
+      --color-background: var(--surface-950);
+      --color-surface: var(--surface-900);
+      --color-surface-hover: var(--surface-800);
+      --color-surface-active: var(--surface-700);
+
+      --color-neutral: var(--surface-50);
+      --color-neutral-muted: var(--surface-200);
+      --color-neutral-subtle: var(--surface-400);
+      --color-inverse: var(--surface-950);
+
+      --color-border: var(--surface-800);
+      --color-border-muted: var(--surface-850);
+      /* 可新增 --surface-850 */
+
+      /* 主色可稍提亮 */
+      --color-primary: var(--primary-400);
+    }
+  }
+}

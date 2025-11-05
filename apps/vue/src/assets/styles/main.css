@@ -1,6 +1,9 @@
 @import "tailwindcss";
-
+@import "tailwindcss-primeui";
+@import "./volt.css";
+@import "./design.css";
 /* pass options to the plugin */
 @plugin "@egoist/tailwindcss-icons" {
   scale: 1.5;
 }
+@custom-variant dark (&:where(.dark, .dark *));

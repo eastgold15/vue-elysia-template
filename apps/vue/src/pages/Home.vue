@@ -44,12 +44,16 @@
         </div>
       </div>
     </div>
+
+    <Button icon="" @click="">test volta 自动导入</Button>
+
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { useApi } from "../utils/api/handleApi";
+
 
 const inputValue = ref("1");
 const loading = ref(false);
